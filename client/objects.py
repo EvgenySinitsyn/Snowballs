@@ -134,6 +134,13 @@ class Player:
 		else:
 			self.direction = 'up'
 
+	def get_speed_bar(self):
+		speed_bar = pg.Surface((214, 52))
+		speed_bar.fill('blue')
+		if hasattr(self, 'snowball'):
+			pg.draw.rect(speed_bar, 'green', (2, 2, self.snowball.speed * 3, 47))
+		return speed_bar
+
 
 
 	def draw(self):
@@ -141,6 +148,9 @@ class Player:
 		Отрисовка персонажа
 		"""
 		self.update()
+		speed_bar = self.get_speed_bar()
+		if self is self.app.your_player:
+			self.app.surface.blit(speed_bar, (10, 10))
 		self.app.surface.blit(self.image, (self.x, self.y))
 
 
@@ -162,8 +172,6 @@ class Snowball:
 		self.passed_range = 0
 		self.warper = -15
 		self.limit_frames = 15
-
-	# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
 
 	def grow(self):
 
