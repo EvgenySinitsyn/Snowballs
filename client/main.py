@@ -1,8 +1,7 @@
 import pygame as pg
-from objects import Player, Aim
+from objects import Player
 import socket
 import pickle
-import time
 
 
 
@@ -11,7 +10,7 @@ class App:
 		try:
 			self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 			self.sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
-			self.sock.connect(('localhost', 10000))
+			self.sock.connect(('192.168.0.104', 10000))
 			print('Подключился')
 		except Exception as ex:
 			print(ex)
@@ -26,7 +25,8 @@ class App:
 		self.text = pg.font.SysFont('Arial', 40, bold=True)
 		pg.mouse.set_visible(False)
 		self.mouse_pos = pg.mouse.get_pos()
-		self.players = ((self, (pg.K_LEFT, pg.K_RIGHT, pg.K_UP, pg.K_DOWN), 'right', 50, 250), (self, (pg.K_a, pg.K_d, pg.K_w, pg.K_s, pg.K_f), 'left', self.WIDTH - 150, 250))
+		self.controls = pg.K_LEFT, pg.K_RIGHT, pg.K_UP, pg.K_DOWN
+		self.players = ((self, self.controls, 'right', 50, 250), (self, self.controls, 'left', self.WIDTH - 150, 250))
 		self.bg = pg.transform.scale(pg.image.load('images/bg.jpg'), self.RESOLUTION)
 		self.players_count = 0
 

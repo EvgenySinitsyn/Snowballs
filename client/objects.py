@@ -34,7 +34,7 @@ class Player:
 		# начальные параметры
 		self.frame = 0
 		self.x, self.y = x, y
-		self.speed = 5
+		self.speed = 7
 		self.direction = direction
 		self.health = 200
 		self.set_image()
@@ -46,7 +46,8 @@ class Player:
 		"""
 		self.image = self.sheet.subsurface((64 * self.frame, 64 * self.movements[self.direction], 64, 64))
 		self.image = pg.transform.scale(self.image, (128, 128))
-		# pg.draw.rect(self.image, 'blue', self.image.get_rect())
+
+	# pg.draw.rect(self.image, 'blue', self.image.get_rect())
 
 	def update(self):
 		"""
@@ -60,11 +61,9 @@ class Player:
 			self.movement.append('left')
 
 		if keys[self.keys['right']]:
-
 			self.movement.append('right')
 
 		if keys[self.keys['up']]:
-
 			self.movement.append('up')
 
 		if keys[self.keys['down']]:
@@ -88,9 +87,9 @@ class Player:
 				# self.snowball.start_pos = (self.snowball.x, self.snowball.y)
 				self.snowball.target = self.aim.pos
 				self.snowball.lenv = ((self.aim.pos[0] - self.snowball.x) ** 2 + (
-							self.aim.pos[1] - self.snowball.y) ** 2) ** 0.5
+						self.aim.pos[1] - self.snowball.y) ** 2) ** 0.5
 				v = (self.aim.pos[0] - self.snowball.x) / self.snowball.lenv, (
-							self.aim.pos[1] - self.snowball.y) / self.snowball.lenv
+						self.aim.pos[1] - self.snowball.y) / self.snowball.lenv
 				self.snowball.v = (v[0] * self.snowball.speed, v[1] * self.snowball.speed)
 				self.snowball.flying = True
 				self.__delattr__('snowball')
@@ -107,8 +106,10 @@ class Player:
 			dx += self.directions[move][0] / coef ** 0.5
 			dy += self.directions[move][1] / coef ** 0.5
 		self.set_image()
-		self.x += dx * self.speed
-		self.y += dy * self.speed
+		if 0 < self.x + dx * self.speed + 64 < self.app.WIDTH:
+			self.x += dx * self.speed
+		if 0 < self.y + dy * self.speed + 64 < self.app.HEIGHT:
+			self.y += dy * self.speed
 
 	def get_damage(self, damage):
 		"""
@@ -143,8 +144,11 @@ class Player:
 	def get_health_bar(self):
 		health_bar = pg.Surface((128, 20))
 		health_bar.fill('black')
-		pg.draw.rect(health_bar, (0, 128, 0), (2, 2, 124, 16))
-		pg.draw.rect(health_bar, (128, 255, 128), (2, 2, 124 / 200 * self.health, 16))
+
+		pg.draw.rect(health_bar, 'white', (2, 2, 124, 16))
+		r = 255 - int(255 / 200 * self.health)
+		g = int(255 / 200 * self.health)
+		pg.draw.rect(health_bar, (r, g, 0), (2, 2, 124 / 200 * self.health, 16))
 		return health_bar
 
 	def draw(self):
@@ -186,7 +190,8 @@ class Snowball:
 		if self.speed < self.max_speed:
 			self.speed += .5
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
-		# pg.draw.rect(self.image, 'red', self.image.get_rect())
+
+	# pg.draw.rect(self.image, 'red', self.image.get_rect())
 
 	# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
 
