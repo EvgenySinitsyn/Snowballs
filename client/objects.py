@@ -204,7 +204,7 @@ class Snowball:
 		if self.flying:
 			if 0 <= self.x <= self.player.app.WIDTH and -200 <= self.y <= self.player.app.HEIGHT and self.passed_range <= self.lenv:
 				for obj in self.player.app.objects:
-					if not obj is self.player and not obj is self and not isinstance(obj, Aim):
+					if not obj is self.player and not obj is self and not isinstance(obj, Aim) and not isinstance(obj, BrokenSnowball):
 						if self.image.get_rect(center=(self.x, self.y)).colliderect(
 								obj.image.get_rect(center=(obj.x, obj.y))):
 							if isinstance(obj, Player):
@@ -218,12 +218,16 @@ class Snowball:
 				self.passed_frames += 1
 				try:
 					if self.passed_frames > self.limit_frames:
+						BrokenSnowball(self.player.app, (self.x, self.y))
 						self.destroy()
+
 				except:
 					pass
 
 			else:
+				BrokenSnowball(self.player.app, (self.x, self.y))
 				self.destroy()
+
 		else:
 			self.x = self.player.x + 64 + self.player.directions[self.player.direction][0] * 50 - 50
 			self.y = self.player.y + 64 + self.player.directions[self.player.direction][1] * 50 - 50
@@ -251,3 +255,20 @@ class Aim:
 		self.update()
 		if self.parent is self.parent.app.your_player:
 			self.parent.app.surface.blit(self.image, self.pos)
+
+class BrokenSnowball:
+	def __init__(self, app, pos):
+		self.image = pg.image.load('images/broken_snowball.png')
+		self.existance_time = 150
+		self.exist = 0
+		self.app = app
+		self.pos = pos
+		self.app.objects.append(self)
+
+	def draw(self):
+		if self.exist < self.existance_time:
+			self.app.surface.blit(self.image, self.pos)
+			self.exist += 1
+		else:
+			self.app.objects.remove(self)
+			del self
