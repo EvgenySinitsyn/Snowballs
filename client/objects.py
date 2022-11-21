@@ -4,11 +4,11 @@ import math
 
 class Player:
 	def __init__(self, app, keys, direction, x=300, y=200):
-		#объект главного приложения
+		# объект главного приложения
 		self.app = app
 		self.app.objects.append(self)
 
-		#хранение параметров объекта
+		# хранение параметров объекта
 		self.sheet = pg.image.load('images/human.png')
 		self.movements = {
 			'up': 8,
@@ -31,7 +31,7 @@ class Player:
 		self.shot_timer = 0
 		self.shot_delay = 30
 
-		#начальные параметры
+		# начальные параметры
 		self.frame = 0
 		self.x, self.y = x, y
 		self.speed = 5
@@ -54,19 +54,24 @@ class Player:
 		self.set_direction()
 		keys = self.acts[2]
 		mouse_buttons = self.acts[0]
+		self.movement = []
 		if keys[self.keys['left']]:
-			self.movement = 'left'
-			self.move()
+			self.movement.append('left')
+
 		if keys[self.keys['right']]:
-			self.movement = 'right'
-			self.move()
+
+			self.movement.append('right')
+
 		if keys[self.keys['up']]:
-			self.movement = 'up'
-			self.move()
+
+			self.movement.append('up')
+
 		if keys[self.keys['down']]:
-			self.movement = 'down'
+			self.movement.append('down')
+		if self.movement:
 			self.move()
-		if not (keys[self.keys['down']] or keys[self.keys['up']] or keys[self.keys['right']] or keys[self.keys['left']]):
+		if not (keys[self.keys['down']] or keys[self.keys['up']] or keys[self.keys['right']] or keys[
+			self.keys['left']]):
 			self.frame = 0
 			self.set_image()
 
@@ -81,14 +86,28 @@ class Player:
 				# self.snowball.alpha = self.alpha
 				# self.snowball.start_pos = (self.snowball.x, self.snowball.y)
 				self.snowball.target = self.aim.pos
-				self.snowball.lenv = ((self.aim.pos[0] - self.snowball.x) ** 2 + (self.aim.pos[1] - self.snowball.y) ** 2) ** 0.5
-				v = (self.aim.pos[0] - self.snowball.x) / self.snowball.lenv, (self.aim.pos[1] - self.snowball.y) / self.snowball.lenv
+				self.snowball.lenv = ((self.aim.pos[0] - self.snowball.x) ** 2 + (
+							self.aim.pos[1] - self.snowball.y) ** 2) ** 0.5
+				v = (self.aim.pos[0] - self.snowball.x) / self.snowball.lenv, (
+							self.aim.pos[1] - self.snowball.y) / self.snowball.lenv
 				self.snowball.v = (v[0] * self.snowball.speed, v[1] * self.snowball.speed)
 				self.snowball.flying = True
 				self.__delattr__('snowball')
 
-
-
+	def move(self):
+		"""
+		Изменение положения персонажа
+		"""
+		self.frame = self.frame + 1 if self.frame < 8 else 0
+		div_dpos = len(self.movement)
+		dx, dy = 0, 0
+		coef = len(self.movement)
+		for move in self.movement:
+			dx += self.directions[move][0] / coef ** 0.5
+			dy += self.directions[move][1] / coef ** 0.5
+		self.set_image()
+		self.x += dx * self.speed
+		self.y += dy * self.speed
 
 	def get_damage(self):
 		"""
@@ -115,15 +134,7 @@ class Player:
 		else:
 			self.direction = 'up'
 
-	def move(self):
-		"""
-		Изменение положения персонажа
-		"""
-		self.frame = self.frame + 1 if self.frame < 8 else 0
-		dpos = self.directions[self.movement]
-		self.set_image()
-		self.x += dpos[0] * self.speed
-		self.y += dpos[1] * self.speed
+
 
 	def draw(self):
 		"""
@@ -135,15 +146,13 @@ class Player:
 
 class Snowball:
 	def __init__(self, player):
-		self.player = player	#игрок, выпустивший снежок
+		self.player = player  # игрок, выпустивший снежок
 
-		#начальные параметры
+		# начальные параметры
 		self.x = self.player.x + 64 + self.player.directions[self.player.direction][0] * 50 - 50
 		self.y = self.player.y + 64 + self.player.directions[self.player.direction][1] * 50 - 50
 		self.speed = 12
 		self.max_speed = 70
-
-
 
 		self.player.app.objects.append(self)
 		self.sheet = pg.image.load('images/snowball.png')
@@ -153,7 +162,8 @@ class Snowball:
 		self.passed_range = 0
 		self.warper = -15
 		self.limit_frames = 15
-		# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
+
+	# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
 
 	def grow(self):
 
@@ -162,7 +172,8 @@ class Snowball:
 		if self.speed < self.max_speed:
 			self.speed += .5
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
-		# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
+
+	# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
 
 	def destroy(self):
 		self.player.app.objects.remove(self)
@@ -173,11 +184,11 @@ class Snowball:
 			if 0 <= self.x <= self.player.app.WIDTH and -200 <= self.y <= self.player.app.HEIGHT and self.passed_range <= self.lenv:
 				for obj in self.player.app.objects:
 					if not obj is self.player and not obj is self and not isinstance(obj, Aim):
-						if self.image.get_rect(center=(self.x, self.y)).colliderect(obj.image.get_rect(center=(obj.x, obj.y))):
+						if self.image.get_rect(center=(self.x, self.y)).colliderect(
+								obj.image.get_rect(center=(obj.x, obj.y))):
 							if isinstance(obj, Player):
 								self.destroy()
 								obj.get_damage()
-
 
 				self.warper += 2
 				self.x += self.v[0]
@@ -216,4 +227,3 @@ class Aim:
 		self.update()
 		if self.parent is self.parent.app.your_player:
 			self.parent.app.surface.blit(self.image, self.pos)
-
