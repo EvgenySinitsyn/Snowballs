@@ -98,18 +98,19 @@ class Player:
 		"""
 		Изменение положения персонажа
 		"""
-		self.frame = self.frame + 1 if self.frame < 8 else 0
-		div_dpos = len(self.movement)
-		dx, dy = 0, 0
-		coef = len(self.movement)
-		for move in self.movement:
-			dx += self.directions[move][0] / coef ** 0.5
-			dy += self.directions[move][1] / coef ** 0.5
-		self.set_image()
-		if 0 < self.x + dx * self.speed + 64 < self.app.WIDTH:
-			self.x += dx * self.speed
-		if 0 < self.y + dy * self.speed + 64 < self.app.HEIGHT:
-			self.y += dy * self.speed
+		if not self.app.waiting:
+			self.frame = self.frame + 1 if self.frame < 8 else 0
+			div_dpos = len(self.movement)
+			dx, dy = 0, 0
+			coef = len(self.movement)
+			for move in self.movement:
+				dx += self.directions[move][0] / coef ** 0.5
+				dy += self.directions[move][1] / coef ** 0.5
+			self.set_image()
+			if 0 < self.x + dx * self.speed + 64 < self.app.WIDTH:
+				self.x += dx * self.speed
+			if 0 < self.y + dy * self.speed + 64 < self.app.HEIGHT:
+				self.y += dy * self.speed
 
 	def get_damage(self, damage):
 		"""

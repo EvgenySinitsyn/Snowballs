@@ -29,15 +29,17 @@ class App:
 		self.players = ((self, self.controls, 'right', 50, 250), (self, self.controls, 'left', self.WIDTH - 150, 250))
 		self.bg = pg.transform.scale(pg.image.load('images/bg.jpg'), self.RESOLUTION)
 		self.players_count = 0
+		self.waiting = True
 
 
 	def draw(self):
-
 		self.surface.blit(self.bg, (0, 0))
 		for obj in self.objects:
 			if isinstance(obj, Player):
 				obj.acts = self.data.pop(0)
 			obj.draw()
+		if self.waiting:
+			self.surface.blit(pg.font.SysFont('arial', size=20).render('Ожидание второго игрока', True, 'red'), (self.WIDTH - 200, 10))
 		self.screen.blit(self.surface, (0, 0))
 
 	def run(self):
@@ -69,7 +71,7 @@ class App:
 							print(f'Игрок player_{i} создан')
 					if not hasattr(self, 'your_player'):
 						self.your_player = self.__getattribute__(f'player_{i}')
-
+					if self.players_count > 1: self.waiting = False
 					continue
 			except Exception as ex:
 				print(ex)
