@@ -36,7 +36,7 @@ class Player:
 		self.x, self.y = x, y
 		self.speed = 5
 		self.direction = direction
-		self.health = 5
+		self.health = 200
 		self.set_image()
 		self.aim = Aim(self)
 
@@ -46,6 +46,7 @@ class Player:
 		"""
 		self.image = self.sheet.subsurface((64 * self.frame, 64 * self.movements[self.direction], 64, 64))
 		self.image = pg.transform.scale(self.image, (128, 128))
+		# pg.draw.rect(self.image, 'blue', self.image.get_rect())
 
 	def update(self):
 		"""
@@ -109,15 +110,13 @@ class Player:
 		self.x += dx * self.speed
 		self.y += dy * self.speed
 
-	def get_damage(self):
+	def get_damage(self, damage):
 		"""
 		Получение урона персонажем
 		"""
+		self.health -= damage
 		print(self.health)
-		if self.health > 1:
-			self.health -= 1
-		else:
-			self.health = 0
+		if self.health <= 0:
 			self.app.objects.remove(self)
 
 	def set_direction(self):
@@ -141,7 +140,12 @@ class Player:
 			pg.draw.rect(speed_bar, 'green', (2, 2, self.snowball.speed * 3, 47))
 		return speed_bar
 
-
+	def get_health_bar(self):
+		health_bar = pg.Surface((128, 20))
+		health_bar.fill('black')
+		pg.draw.rect(health_bar, (0, 128, 0), (2, 2, 124, 16))
+		pg.draw.rect(health_bar, (128, 255, 128), (2, 2, 124 / 200 * self.health, 16))
+		return health_bar
 
 	def draw(self):
 		"""
@@ -149,9 +153,11 @@ class Player:
 		"""
 		self.update()
 		speed_bar = self.get_speed_bar()
+		health_bar = self.get_health_bar()
 		if self is self.app.your_player:
 			self.app.surface.blit(speed_bar, (10, 10))
 		self.app.surface.blit(self.image, (self.x, self.y))
+		self.app.surface.blit(health_bar, (self.x, self.y - 30))
 
 
 class Snowball:
@@ -180,6 +186,7 @@ class Snowball:
 		if self.speed < self.max_speed:
 			self.speed += .5
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
+		# pg.draw.rect(self.image, 'red', self.image.get_rect())
 
 	# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
 
@@ -196,15 +203,18 @@ class Snowball:
 								obj.image.get_rect(center=(obj.x, obj.y))):
 							if isinstance(obj, Player):
 								self.destroy()
-								obj.get_damage()
+								obj.get_damage(self.speed)
 
 				self.warper += 2
 				self.x += self.v[0]
 				self.y += self.v[1] + self.warper
 				self.passed_range += (self.v[0] ** 2 + (self.v[1] + self.warper) ** 2) ** 0.5
 				self.passed_frames += 1
-				if self.passed_frames > self.limit_frames:
-					self.destroy()
+				try:
+					if self.passed_frames > self.limit_frames:
+						self.destroy()
+				except:
+					pass
 
 			else:
 				self.destroy()
