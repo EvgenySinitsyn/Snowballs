@@ -3,14 +3,14 @@ import math
 
 
 class Player:
-	def __init__(self, app, keys, direction, x=300, y=200):
+	def __init__(self, app, keys, direction, x, y, pict):
 		# объект главного приложения
 		self.app = app
 
 		self.app.objects['players'].append(self)
 
 		# хранение параметров объекта
-		self.sheet = pg.image.load('images/human.png')
+		self.sheet = pg.image.load(f'images/player{pict}.png')
 		self.movements = {
 			'up': 8,
 			'left': 9,
@@ -35,7 +35,7 @@ class Player:
 		# начальные параметры
 		self.frame = 0
 		self.x, self.y = x, y
-		self.speed = 7
+		self.speed = 3.5
 		self.direction = direction
 		self.health = 200
 		self.set_image()
@@ -140,7 +140,7 @@ class Player:
 		speed_bar = pg.Surface((214, 52))
 		speed_bar.fill('blue')
 		if hasattr(self, 'snowball'):
-			pg.draw.rect(speed_bar, 'green', (2, 2, self.snowball.speed * 3, 47))
+			pg.draw.rect(speed_bar, 'green', (2, 2, self.snowball.speed * 6, 47))
 		return speed_bar
 
 	def get_health_bar(self):
@@ -173,8 +173,8 @@ class Snowball:
 		# начальные параметры
 		self.x = self.player.x + 64 + self.player.directions[self.player.direction][0] * 50 - 50
 		self.y = self.player.y + 64 + self.player.directions[self.player.direction][1] * 50 - 50
-		self.speed = 12
-		self.max_speed = 70
+		self.speed = 6
+		self.max_speed = 35
 
 		self.player.app.objects['snowballs'].append(self)
 		self.sheet = pg.image.load('images/snowball1.png')
@@ -183,14 +183,14 @@ class Snowball:
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
 		self.passed_range = 0
 		self.warper = -15
-		self.limit_frames = 15
+		self.limit_frames = 30
 
 	def grow(self):
 
 		if self.frame < 8:
 			self.frame += 1
 		if self.speed < self.max_speed:
-			self.speed += .8
+			self.speed += .4
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
 
 	# pg.draw.rect(self.image, 'red', self.image.get_rect())
@@ -213,7 +213,7 @@ class Snowball:
 								if isinstance(obj, Player):
 									obj.get_damage(self.speed)
 									self.destroy()
-				self.warper += 2
+				self.warper += 1
 				self.x += self.v[0]
 				self.y += self.v[1] + self.warper
 				self.passed_range += (self.v[0] ** 2 + (self.v[1] + self.warper) ** 2) ** 0.5
@@ -262,7 +262,7 @@ class Aim:
 class BrokenSnowball:
 	def __init__(self, app, pos):
 		self.image = pg.image.load('images/broken_snowball.png')
-		self.existance_time = 150
+		self.existance_time = 300
 		self.exist = 0
 		self.app = app
 		self.pos = pos

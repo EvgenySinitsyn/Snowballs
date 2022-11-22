@@ -45,4 +45,4 @@ while True:
 			sock.close()
 			print('Отключился игрок')
 
-	clock.tick(30)
+	clock.tick(60)

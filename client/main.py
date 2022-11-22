@@ -26,7 +26,7 @@ class App:
 		self.mouse_pos = pg.mouse.get_pos()
 		self.controls = pg.K_LEFT, pg.K_RIGHT, pg.K_UP, pg.K_DOWN
 		self.players_settings = (
-		(self, self.controls, 'right', 50, 250), (self, self.controls, 'left', self.WIDTH - 150, 250))
+		(self, self.controls, 'right', 50, 250, 1), (self, self.controls, 'left', self.WIDTH - 150, 250, 2))
 		self.bg = pg.transform.scale(pg.image.load('images/bg.jpg'), self.RESOLUTION)
 		self.players_count = 0
 		self.objects = dict(broken_snowballs=[], players=[], snowballs=[], aims=[], )
@@ -85,7 +85,7 @@ class App:
 			self.draw()
 			[exit() for i in pg.event.get() if i.type == pg.QUIT]
 			pg.display.update()
-			# self.clock.tick(self.FPS)
+			self.clock.tick(self.FPS)
 
 
 if __name__ == '__main__':
