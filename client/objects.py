@@ -6,7 +6,8 @@ class Player:
 	def __init__(self, app, keys, direction, x=300, y=200):
 		# объект главного приложения
 		self.app = app
-		self.app.objects.append(self)
+
+		self.app.objects['players'].append(self)
 
 		# хранение параметров объекта
 		self.sheet = pg.image.load('images/human.png')
@@ -119,7 +120,7 @@ class Player:
 		self.health -= damage
 		print(self.health)
 		if self.health <= 0:
-			self.app.objects.remove(self)
+			self.app.objects['players'].remove(self)
 
 	def set_direction(self):
 		"""
@@ -175,8 +176,8 @@ class Snowball:
 		self.speed = 12
 		self.max_speed = 70
 
-		self.player.app.objects.append(self)
-		self.sheet = pg.image.load('images/snowball.png')
+		self.player.app.objects['snowballs'].append(self)
+		self.sheet = pg.image.load('images/snowball1.png')
 		self.flying = False
 		self.frame = 0
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
@@ -189,7 +190,7 @@ class Snowball:
 		if self.frame < 8:
 			self.frame += 1
 		if self.speed < self.max_speed:
-			self.speed += .5
+			self.speed += .8
 		self.image = self.sheet.subsurface(100 * self.frame, 0, 100, 100)
 
 	# pg.draw.rect(self.image, 'red', self.image.get_rect())
@@ -197,20 +198,21 @@ class Snowball:
 	# pg.draw.rect(self.image, 'red', (0, 0, 100, 100))
 
 	def destroy(self):
-		self.player.app.objects.remove(self)
+		self.player.app.objects['snowballs'].remove(self)
 		del self
 
 	def update(self):
 		if self.flying:
 			if 0 <= self.x <= self.player.app.WIDTH and -200 <= self.y <= self.player.app.HEIGHT and self.passed_range <= self.lenv:
-				for obj in self.player.app.objects:
-					if not obj is self.player and not obj is self and not isinstance(obj, Aim) and not isinstance(obj, BrokenSnowball):
-						if self.image.get_rect(center=(self.x, self.y)).colliderect(
-								obj.image.get_rect(center=(obj.x, obj.y))):
-							if isinstance(obj, Player):
-								self.destroy()
-								obj.get_damage(self.speed)
-
+				for l in self.player.app.objects:
+					for obj in self.player.app.objects[l]:
+						if not obj is self.player and not obj is self and not isinstance(obj, Aim) and not isinstance(
+								obj, BrokenSnowball):
+							if self.image.get_rect(center=(self.x, self.y)).colliderect(
+									obj.image.get_rect(center=(obj.x, obj.y))):
+								if isinstance(obj, Player):
+									obj.get_damage(self.speed)
+									self.destroy()
 				self.warper += 2
 				self.x += self.v[0]
 				self.y += self.v[1] + self.warper
@@ -243,7 +245,7 @@ class Aim:
 		self.parent = parent
 		self.set_image()
 
-		self.parent.app.objects.append(self)
+		self.parent.app.objects['aims'].append(self)
 
 	def set_image(self):
 		self.image = pg.transform.scale(pg.image.load('images/aim.png'), (70, 70))
@@ -256,6 +258,7 @@ class Aim:
 		if self.parent is self.parent.app.your_player:
 			self.parent.app.surface.blit(self.image, self.pos)
 
+
 class BrokenSnowball:
 	def __init__(self, app, pos):
 		self.image = pg.image.load('images/broken_snowball.png')
@@ -263,12 +266,13 @@ class BrokenSnowball:
 		self.exist = 0
 		self.app = app
 		self.pos = pos
-		self.app.objects.append(self)
+		self.app.objects['broken_snowballs'].append(self)
 
 	def draw(self):
 		if self.exist < self.existance_time:
 			self.app.surface.blit(self.image, self.pos)
+			self.image.set_alpha(1000 - 1000 / self.existance_time * self.exist)
 			self.exist += 1
 		else:
-			self.app.objects.remove(self)
+
 			del self
